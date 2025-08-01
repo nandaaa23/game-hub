@@ -3,9 +3,9 @@
 import GameCard from '@/components/GameCard';
 
 const games = [
+  { title: 'Brick Breaker', image: '/gamecard/brickbreaker.png', href: '/games/brickbreaker' },
   { title: 'Fruit Ninja', image: '/gamecard/fruitninja.png', href: '/games/fruitninja' },
   { title: 'Flappy Bird', image: '/gamecard/flappybird.png', href: '/games/flappybird' },
-  { title: 'Brick Breaker', image: '/gamecard/brickbreaker.png', href: '/games/brickbreaker' },
   { title: 'Draw Game', image: '/gamecard/draw.png', href: '/games/draw' },
 ];
 
