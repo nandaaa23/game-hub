@@ -1,4 +1,3 @@
-// --- Basic Setup ---
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreElement = document.getElementById('score');
@@ -9,7 +8,6 @@ const pitchMeterBar = document.getElementById('pitch-meter-bar');
 canvas.width = 400;
 canvas.height = 600;
 
-// --- Image Loading ---
 const birdImg = new Image();
 birdImg.src = 'bird.png';
 const pipeTopImg = new Image();
@@ -19,175 +17,168 @@ pipeBottomImg.src = 'pipe-bottom.png';
 const backgroundImg = new Image();
 backgroundImg.src = 'background.png';
 
-// --- Game State & Constants ---
 let gameRunning = false;
 let score = 0;
-const gravity = 0.25;
-const flapStrength = -4;
+const gravity = 0.2;
+const flapStrength = -5;
 const pipeSpeed = 2.5;
 const pipeGap = 150;
-const pipeWidth = 52;
-const pipeHeight = 320;
-const pipeInterval = 90;
+const pipeWidth = 80;
+const pipeHeight = 400;
+const pipeInterval = 100;
 
-// --- Bird ---
 const bird = {
-    x: 80,
-    y: canvas.height / 2,
-    width: 34,
-    height: 24,
-    velocity: 0,
-    angle: 0,
+  x: 80,
+  y: canvas.height / 2,
+  width: 34,
+  height: 24,
+  velocity: 0,
+  angle: 0,
 };
 
-// --- Pipes ---
 let pipes = [];
 let frameCount = 0;
 
-// --- Audio Processing ---
-let audioContext, analyser, microphone;
-const PITCH_THRESHOLD = 350;
-let smoothedPitch = 0;
-const PITCH_SMOOTHING_FACTOR = 0.2;
+let audioContext;
+let analyser;
+let microphone;
+const VOLUME_THRESHOLD = 0.10;
+const VOLUME_SMOOTHING_FACTOR = 0.05;
+let smoothedVolume = 0;
+
 let lastFlapTime = 0;
-const FLAP_COOLDOWN = 400;
+const FLAP_COOLDOWN = 300;
 
 async function setupAudio() {
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioContext.createAnalyser();
-        microphone = audioContext.createMediaStreamSource(stream);
-        microphone.connect(analyser);
-        analyser.fftSize = 2048;
-    } catch (err) {
-        alert('Microphone access denied. Please allow microphone access to play.');
-    }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert('Your browser does not support the audio API!');
+    return;
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioContext.createAnalyser();
+    microphone = audioContext.createMediaStreamSource(stream);
+    microphone.connect(analyser);
+    analyser.fftSize = 256;
+  } catch (err) {
+    console.error('Microphone access error:', err);
+    alert('Microphone access denied. Please allow microphone access to play.');
+  }
 }
 
-function getPitch() {
-    if (!analyser) return 0;
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Float32Array(bufferLength);
-    analyser.getFloatTimeDomainData(dataArray);
+function getVolume() {
+  if (!analyser) return 0;
+  const bufferLength = analyser.frequencyBinCount;
+  const dataArray = new Uint8Array(bufferLength);
+  analyser.getByteTimeDomainData(dataArray);
 
-    let rms = 0;
-    for (let i = 0; i < dataArray.length; i++) {
-        rms += dataArray[i] * dataArray[i];
-    }
-    rms = Math.sqrt(rms / dataArray.length);
-    if (rms < 0.01) return 0;
-
-    let bestCorrelation = 0;
-    let bestOffset = -1;
-    for (let offset = 10; offset < dataArray.length; offset++) {
-        let correlation = 0;
-        for (let i = 0; i < dataArray.length - offset; i++) {
-            correlation += dataArray[i] * dataArray[i + offset];
-        }
-        if (correlation > bestCorrelation) {
-            bestCorrelation = correlation;
-            bestOffset = offset;
-        }
-    }
-    if (bestOffset === -1) return 0;
-    return audioContext.sampleRate / bestOffset;
+  let sum = 0;
+  for (let i = 0; i < dataArray.length; i++) {
+    const value = (dataArray[i] - 128) / 128;
+    sum += value * value;
+  }
+  return Math.sqrt(sum / dataArray.length);
 }
 
-// --- Game Loop ---
 function gameLoop() {
-    if (!gameRunning) return;
+  if (!gameRunning) return;
 
-    // Physics
-    bird.velocity += gravity;
-    bird.y += bird.velocity;
-    bird.angle = Math.min(90, bird.velocity * 5);
+  bird.velocity += gravity;
+  bird.y += bird.velocity;
+  bird.angle = Math.min(90, bird.velocity * 5);
 
-    // Clamp bird inside canvas
-    bird.y = Math.max(0, Math.min(canvas.height - bird.height, bird.y));
+  frameCount++;
+  if (frameCount % pipeInterval === 0) {
+    const pipeY = Math.random() * (canvas.height - pipeGap - 200) + 100;
+    pipes.push({ x: canvas.width, y: pipeY, scored: false }); // 
+  }
+  pipes.forEach(pipe => pipe.x -= pipeSpeed);
+  pipes = pipes.filter(pipe => pipe.x + pipeWidth > 0);
 
-    // Pipe logic
-    frameCount++;
-    if (frameCount % pipeInterval === 0) {
-        const pipeY = Math.random() * (canvas.height - pipeGap - 200) + 100;
-        pipes.push({ x: canvas.width, y: pipeY });
-    }
-    pipes.forEach(pipe => pipe.x -= pipeSpeed);
-    pipes = pipes.filter(pipe => pipe.x + pipeWidth > 0);
+  if (bird.y > canvas.height - bird.height || bird.y < 0) endGame();
+  pipes.forEach(pipe => {
+    const withinX = bird.x + bird.width > pipe.x && bird.x < pipe.x + pipeWidth;
+    const hitsY = bird.y < pipe.y || bird.y + bird.height > pipe.y + pipeGap;
+    if (withinX && hitsY) endGame();
+  });
 
-    // --- Remove pipe collision detection ---
-    // Game ends ONLY if bird touches top/bottom
-    if (bird.y <= 0 || bird.y + bird.height >= canvas.height) {
-        endGame();
-    }
+  pipes.forEach(pipe => {
+    const padding = 5; 
 
-    // Score update
-    pipes.forEach(pipe => {
-        if (pipe.x + pipeWidth < bird.x && !pipe.scored) {
-            pipe.scored = true;
-            score++;
-            scoreElement.textContent = score;
-        }
-    });
+    const birdLeft = bird.x + padding;
+    const birdRight = bird.x + bird.width - padding;
+    const birdTop = bird.y + padding;
+    const birdBottom = bird.y + bird.height - padding;
 
-    // Pitch logic
-    const pitch = getPitch();
-    smoothedPitch = PITCH_SMOOTHING_FACTOR * pitch + (1 - PITCH_SMOOTHING_FACTOR) * smoothedPitch;
-    const now = Date.now();
-    if (smoothedPitch > PITCH_THRESHOLD && now - lastFlapTime > FLAP_COOLDOWN) {
-        bird.velocity = flapStrength;
-        lastFlapTime = now;
-    }
+    const pipeLeft = pipe.x;
+    const pipeRight = pipe.x + pipeWidth;
+    const pipeTopOpening = pipe.y;
+    const pipeBottomOpening = pipe.y + pipeGap;
 
-    if (pitchMeterBar) {
-        pitchMeterBar.style.width = `${Math.min(100, (smoothedPitch / 800) * 100)}%`;
-    }
+    const withinX = birdRight > pipeLeft && birdLeft < pipeRight;
+    const hitsY = birdTop < pipeTopOpening || birdBottom > pipeBottomOpening;
 
-    // --- Draw ---
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (backgroundImg.complete) {
-        ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
-    }
+    if (withinX && hitsY) endGame();
+});
 
-    pipes.forEach(pipe => {
-        if (pipeTopImg.complete) ctx.drawImage(pipeTopImg, pipe.x, pipe.y - pipeHeight, pipeWidth, pipeHeight);
-        if (pipeBottomImg.complete) ctx.drawImage(pipeBottomImg, pipe.x, pipe.y + pipeGap, pipeWidth, pipeHeight);
-    });
+  const volume = getVolume();
+  smoothedVolume = VOLUME_SMOOTHING_FACTOR * volume + (1 - VOLUME_SMOOTHING_FACTOR) * smoothedVolume;
+  const now = Date.now();
+  if (smoothedVolume > VOLUME_THRESHOLD && now - lastFlapTime > FLAP_COOLDOWN) {
+    bird.velocity = flapStrength;
+    lastFlapTime = now;
+  }
 
-    ctx.save();
-    ctx.translate(bird.x + bird.width / 2, bird.y + bird.height / 2);
-    ctx.rotate(bird.angle * Math.PI / 180);
-    if (birdImg.complete) {
-        ctx.drawImage(birdImg, -bird.width / 2, -bird.height / 2, bird.width, bird.height);
-    }
-    ctx.restore();
+  if (pitchMeterBar) {
+    pitchMeterBar.style.width = `${Math.min(100, (smoothedVolume / 0.4) * 100)}%`;
+  }
 
-    requestAnimationFrame(gameLoop);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (backgroundImg.complete) {
+    ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+  }
+
+  pipes.forEach(pipe => {
+    if (pipeTopImg.complete) ctx.drawImage(pipeTopImg, pipe.x, pipe.y - pipeHeight, pipeWidth, pipeHeight);
+    if (pipeBottomImg.complete) ctx.drawImage(pipeBottomImg, pipe.x, pipe.y + pipeGap, pipeWidth, pipeHeight);
+  });
+
+  ctx.save();
+  ctx.translate(bird.x + bird.width / 2, bird.y + bird.height / 2);
+  ctx.rotate(bird.angle * Math.PI / 180);
+  if (birdImg.complete) {
+    ctx.drawImage(birdImg, -bird.width / 2, -bird.height / 2, bird.width, bird.height);
+  }
+  ctx.restore();
+
+  requestAnimationFrame(gameLoop);
 }
 
-// --- Game State ---
 function startGame() {
-    startModal.style.display = 'none';
-    score = 0;
-    bird.y = canvas.height / 2;
-    bird.velocity = 0;
-    pipes = [];
-    frameCount = pipeInterval;
-    scoreElement.textContent = score;
-    gameRunning = true;
-    gameLoop();
+  startModal.style.display = 'none';
+  score = 0;
+  bird.y = canvas.height / 2;
+  bird.velocity = 0;
+  pipes = [];
+  frameCount = pipeInterval;
+  scoreElement.textContent = score;
+  gameRunning = true;
+  gameLoop();
 }
 
 function endGame() {
-    gameRunning = false;
-    startModal.querySelector('h2').textContent = `Game Over! Score: ${score}`;
-    startModal.querySelector('button').textContent = 'Play Again';
-    startModal.style.display = 'flex';
+  gameRunning = false;
+  startModal.querySelector('h2').textContent = `Game Over! Score: ${score}`;
+  startModal.querySelector('button').textContent = 'Play Again';
+  startModal.style.display = 'flex';
 }
 
 startButton.addEventListener('click', async () => {
+  if (!audioContext || audioContext.state === 'closed') {
     await setupAudio();
-    if (audioContext) {
-        startGame();
-    }
+  }
+  if (audioContext) {
+    startGame();
+  }
 });

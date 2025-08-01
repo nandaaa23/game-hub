@@ -1,4 +1,3 @@
-// --- Canvas and Toolbar Setup ---
 const canvas = document.getElementById('drawCanvas');
 const ctx = canvas.getContext('2d');
 const videoElement = document.getElementById('videoElement');
@@ -7,12 +6,10 @@ const brushSizeSlider = document.getElementById('brushSize');
 const brushSizeValue = document.getElementById('brushSizeValue');
 const clearButton = document.getElementById('clearButton');
 
-// --- Drawing State ---
 let isDrawing = false;
 let lastX = 0;
 let lastY = 0;
 
-// --- MediaPipe Pose Setup ---
 const pose = new window.Pose({
     locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
 });
@@ -24,7 +21,6 @@ pose.setOptions({
 });
 pose.onResults(onPoseResults);
 
-// --- Camera Setup ---
 const camera = new Camera(videoElement, {
     onFrame: async () => await pose.send({ image: videoElement }),
     width: 1280,
@@ -32,15 +28,14 @@ const camera = new Camera(videoElement, {
 });
 camera.start();
 
-// --- Main Drawing Loop (Called by MediaPipe) ---
 function onPoseResults(results) {
     ctx.save();
-    ctx.globalAlpha = 0.7; // Make it slightly transparent
+    ctx.globalAlpha = 0.7; 
     ctx.scale(-1, 1); // Flip horizontally for a mirror effect
     const webcamWidth = 200;
     const webcamHeight = 150;
     const margin = 20;
-    // Draw the flipped image, adjusting the x-coordinate to keep it in the corner
+    // Draw the flipped image
     ctx.drawImage(results.image, -canvas.width + margin, margin, webcamWidth, webcamHeight);
     ctx.restore();
 
@@ -78,7 +73,6 @@ function onPoseResults(results) {
     ctx.fill();
 }
 
-// --- Toolbar Event Listeners ---
 colorPicker.addEventListener('change', (e) => ctx.strokeStyle = e.target.value);
 brushSizeSlider.addEventListener('input', (e) => {
     ctx.lineWidth = e.target.value;
@@ -86,7 +80,6 @@ brushSizeSlider.addEventListener('input', (e) => {
 });
 clearButton.addEventListener('click', () => ctx.clearRect(0, 0, canvas.width, canvas.height));
 
-// --- Initial Setup ---
 function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight - document.querySelector('.toolbar').offsetHeight;

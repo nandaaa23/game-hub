@@ -1,4 +1,3 @@
-// --- Basic Setup ---
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const videoElement = document.getElementById('videoElement');
@@ -10,12 +9,9 @@ const gameOverModal = document.getElementById('gameOverModal');
 const finalScoreElement = document.getElementById('finalScore');
 const restartButton = document.getElementById('restartButton');
 
-
-// Make canvas fill the window
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// --- Asset Loading ---
 const backgroundImage = new Image();
 backgroundImage.src = 'background.jpg'; 
 
@@ -37,20 +33,16 @@ fruitImages.strawberry.half2.src = 'strawberry-2.png';
 fruitImages.watermelon.whole.src = 'watermelon.png';
 fruitImages.watermelon.half1.src = 'watermelon-1.png';
 fruitImages.watermelon.half2.src = 'watermelon-2.png';
-
 fruitImages.bomb.whole.src = 'bomb.png';
 
 
-// --- Game State ---
 let score = 0;
-let lives= 3;
 let fruits = [];
 let cutPieces = [];
 let sliceTrails = { left: [], right: [] };
 let gameRunning = false;
 let fruitSpawnInterval;
 
-// --- MediaPipe Pose Setup ---
 const pose = new window.Pose({
     locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
 });
@@ -124,7 +116,6 @@ class CutPiece {
     }
 }
 
-// --- Main Loop and Game Logic ---
 function onPoseResults(results) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (backgroundImage.complete) {
@@ -152,8 +143,8 @@ function onPoseResults(results) {
         if (gameRunning) {
             const now = Date.now();
             const hands = {
-                left: results.poseLandmarks[19], // Left index
-                right: results.poseLandmarks[20] // Right index
+                left: results.poseLandmarks[19], 
+                right: results.poseLandmarks[20] 
             };
 
             for (const side in hands) {
@@ -225,7 +216,6 @@ function isWithinSegment(px, py, start, end) {
     return Math.abs(d1 + d2 - lineLen) < 1;
 }
 
-// --- Game State Management ---
 function startGame() {
     startModal.style.display = 'none';
     gameOverModal.style.display = 'none';

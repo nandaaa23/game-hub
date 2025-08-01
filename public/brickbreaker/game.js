@@ -45,8 +45,8 @@ const BALL_BOTTOM_OFFSET = screenWidth >= widthThreshold ? 40 : 20;
 
 // Level progression constants
 const INITIAL_BALL_SPEED = screenWidth >= widthThreshold ? 7 : 6;
-const LEVEL_SPEED_INCREASE = 1.1; // 10% increase
-const LEVEL_WIDTH_DECREASE = 0.9; // 10% decrease
+const LEVEL_SPEED_INCREASE = 1.1; 
+const LEVEL_WIDTH_DECREASE = 0.9; 
 
 const gameState = {
     level: 1,
@@ -80,33 +80,30 @@ const gameState = {
     gameOver: false,
 };
 
-const bricks = new Float32Array(BRICK_ROW_COUNT * BRICK_COLUMN_COUNT * 3); // x, y, status
+const bricks = new Float32Array(BRICK_ROW_COUNT * BRICK_COLUMN_COUNT * 3); 
 
 function getBrickRowCount(level) {
     if (level === 1) return 1;
     if (level === 2) return 2;
-    return 3; // Level 3 and higher
+    return 3; 
 }
 
 // Initialize bricks with TypedArray
 function initBricks() {
     const rowCount = getBrickRowCount(gameState.level);
     gameState.stats.bricksRemaining = rowCount * BRICK_COLUMN_COUNT;
-    
-    // Clear existing bricks first
     bricks.fill(0);
     
     for (let c = 0; c < BRICK_COLUMN_COUNT; c++) {
         for (let r = 0; r < rowCount; r++) {
             const idx = (c * BRICK_ROW_COUNT + r) * 3;
-            bricks[idx] = c * (BRICK_WIDTH + BRICK_PADDING) + BRICK_OFFSET_LEFT; // x
-            bricks[idx + 1] = r * (BRICK_HEIGHT + BRICK_PADDING) + BRICK_OFFSET_TOP; // y
-            bricks[idx + 2] = 1; // status
+            bricks[idx] = c * (BRICK_WIDTH + BRICK_PADDING) + BRICK_OFFSET_LEFT; 
+            bricks[idx + 1] = r * (BRICK_HEIGHT + BRICK_PADDING) + BRICK_OFFSET_TOP; 
+            bricks[idx + 2] = 1; 
         }
     }
 }
 
-// Update lives display
 function updateLivesDisplay() {
     livesElement.textContent = '💛'.repeat(gameState.lives);
 }
@@ -116,7 +113,7 @@ function drawNotification() {
     
     const currentTime = performance.now();
     const elapsed = currentTime - gameState.notification.fadeStart;
-    const duration = 2000; // 2 seconds to fade out
+    const duration = 2000; 
     
     gameState.notification.opacity = Math.max(0, 1 - (elapsed / duration));
     
@@ -145,8 +142,6 @@ async function setupHandTracking() {
   let wasGameRunning = false;
   let pauseOverlay = null;
 
-
-  // Configure video element
   video.autoplay = true;
   video.playsInline = true;
   video.muted = true;
@@ -224,7 +219,6 @@ async function setupHandTracking() {
         throw loadError;
       }
 
-      // Configure hand tracking options
       hands.setOptions({
         maxNumHands: 1,
         modelComplexity: 0,
@@ -232,7 +226,6 @@ async function setupHandTracking() {
         minTrackingConfidence: 0.5,
       });
 
-      // Set up results handler with error recovery
       hands.onResults((results) => {
         const now = performance.now();
         if (now - lastProcessedTime < PROCESS_INTERVAL) return;
@@ -259,7 +252,6 @@ async function setupHandTracking() {
           
           if (totalWeight > 0) {
             smoothedX /= totalWeight;
-            // lastHandPosition = smoothedX;
             
             const alpha = 0.5;
             const currentPaddleX = (gameState.paddle.x + gameState.paddle.width/2) / CANVAS_WIDTH;
@@ -299,7 +291,6 @@ async function setupHandTracking() {
     }
   }
 
-  // Enhanced camera initialization
   async function startCamera() {
     try {
       const permission = await navigator.permissions.query({ name: 'camera' });
@@ -326,8 +317,7 @@ async function setupHandTracking() {
 
       await video.play();
       hands = await initializeHandTracking();
-      
-      // Start processing frames
+
       processFrameID = requestAnimationFrame(processFrame);
       return true;
     } catch (error) {
@@ -366,7 +356,6 @@ async function setupHandTracking() {
   }
 }
 
-// Level up function
 function levelUp() {
   gameState.level++;
   levelElement.textContent = gameState.level;
@@ -378,23 +367,19 @@ function levelUp() {
   
   // Decrease paddle width by 10%
   gameState.paddle.width *= LEVEL_WIDTH_DECREASE;
-  
-  // Show level up indicator
+
   levelUpIndicator.style.opacity = '1';
   setTimeout(() => {
       levelUpIndicator.style.opacity = '0';
   }, 2000);
   
-  // Reset ball position
   gameState.ball.active = true;
   gameState.ball.x = gameState.paddle.x + gameState.paddle.width/2;
   gameState.ball.y = gameState.paddle.y - BALL_RADIUS;
   
-  // Initialize new level
   initBricks();
 }
 
-// Handle ball miss
 function handleBallMiss() {
   gameState.lives--;
   updateLivesDisplay();
@@ -404,12 +389,10 @@ function handleBallMiss() {
       gameState.ball.active = false;
       handleGameOver();
   } else {
-      // Show notification
       gameState.notification.text = `${gameState.lives} ${gameState.lives === 1 ? 'life' : 'lives'} remaining`;
       gameState.notification.opacity = 1;
       gameState.notification.fadeStart = performance.now();
 
-      // Reset ball position but keep playing
       gameState.ball.active = true;
       gameState.ball.x = gameState.paddle.x + gameState.paddle.width/2;
       gameState.ball.y = gameState.paddle.y - BALL_RADIUS;
@@ -430,13 +413,11 @@ function drawBricks() {
 }
 
 function drawGame() {
-  // Draw paddle
   console.log('Drawing frame. Paddle Y:', gameState.paddle.y, 'Paddle Height:', gameState.paddle.height);
 
   ctx.fillStyle = '#3399CC';
   ctx.fillRect(gameState.paddle.x, gameState.paddle.y, gameState.paddle.width,  gameState.paddle.height);
 
-  // Draw ball
   if (gameState.ball.active) {
       ctx.fillStyle = '#33FF99';
       ctx.beginPath();
@@ -459,7 +440,6 @@ function collisionDetection() {
   const ballGridX = Math.floor((gameState.ball.x - BRICK_OFFSET_LEFT) / (BRICK_WIDTH + BRICK_PADDING));
   const ballGridY = Math.floor((gameState.ball.y - BRICK_OFFSET_TOP) / (BRICK_HEIGHT + BRICK_PADDING));
 
-  // Check only nearby bricks
   for (let c = Math.max(0, ballGridX - 1); c <= Math.min(BRICK_COLUMN_COUNT - 1, ballGridX + 1); c++) {
       for (let r = Math.max(0, ballGridY - 1); r <= Math.min(BRICK_ROW_COUNT - 1, ballGridY + 1); r++) {
           const idx = (c * BRICK_ROW_COUNT + r) * 3;
@@ -480,7 +460,6 @@ function collisionDetection() {
   }
 }
 
-//Main game loop with frame timing
 function gameLoop(timestamp) {
   if (timestamp - lastTime >= frameDelay) {
       lastTime = timestamp;
@@ -536,26 +515,20 @@ function gameLoop(timestamp) {
 
 const HIGHSCORE_URL = window.config.HIGHSCORE_URL;
 
-
-// Function to insert current score into cached high scores
 function insertCurrentScore(currentScore, playerName, level) {
   if (!cachedHighScores) {
       cachedHighScores = [];
   }
 
-  // Create new score entry
   const newScore = [playerName, currentScore, level];
-  
-  // Find the correct position to insert the new score
+ 
   let insertIndex = cachedHighScores.findIndex(score => currentScore > score[1]);
   if (insertIndex === -1) {
       insertIndex = cachedHighScores.length;
   }
   
-  // Insert the new score
   cachedHighScores.splice(insertIndex, 0, newScore);
   
-  // Keep only top 10 scores
   if (cachedHighScores.length > 10) {
       cachedHighScores = cachedHighScores.slice(0, 10);
   }
@@ -563,13 +536,12 @@ function insertCurrentScore(currentScore, playerName, level) {
   return cachedHighScores;
 }
 
-// Submit a new score to Google Sheets
 async function submitScore(name, score, level) {
     try {
         const response = await fetch(HIGHSCORE_URL, {
             method: 'POST',
             body: JSON.stringify({ 
-                name: name.substring(0, 20), // Limit name length
+                name: name.substring(0, 20), 
                 score: score,
                 level: level
             })
@@ -584,21 +556,17 @@ async function submitScore(name, score, level) {
     }
 }
 
-// Modified handleGameOver function
 async function handleGameOver() {
-  // First show regular game over screen
   const gameOverModal = document.getElementById('gameOverModal');
   document.getElementById('finalLevel').textContent = "Level " + gameState.level;
   document.getElementById('finalScore').textContent = gameState.stats.score;
   
-  // Show the game over modal
   let highScoreTable = document.querySelector(".high-scores");
   if (highScoreTable) {
       highScoreTable.classList.add("hidden");
   }
   gameOverModal.style.display = 'flex';
   
-  // Add slight delay so game over screen is visible first
   let playerName;
   setTimeout(() => {
       playerName = prompt("Enter your name for the leaderboard:", "Player");
@@ -614,53 +582,43 @@ async function handleGameOver() {
 async function handleHighScores(playerName) {
   const loadingText = document.querySelector('.loading-text');
   loadingText.classList.remove("hidden");
-  
-  // If we haven't fetched high scores yet, do it now
+
   if (!cachedHighScores) {
       await fetchHighScoresInBackground();
   }
-  
-  // Insert current score into cached high scores
+
   const updatedScores = insertCurrentScore(
       gameState.stats.score,
       playerName,
       gameState.level
   );
-  
-  // Display high scores immediately using cached data
+ 
   displayHighScores(updatedScores);
   document.querySelector(".high-scores").classList.remove("hidden");
   loadingText.classList.add("hidden");
   
-  // Submit score in the background
   submitScore(playerName, gameState.stats.score, gameState.level)
       .catch(error => {
           console.error('Error submitting score:', error);
       });
 }
 
-// Calculate the percentile rank of a score within all scores
 function calculatePercentileRank(currentScore, scores) {
   if (!scores || scores.length === 0) return 0;
 
-  // Convert current score to number and scores array to numbers
   currentScore = Number(currentScore);
   const scoreValues = scores.map(score => Number(score[1]));
 
-  // Count how many scores are lower than the current score
   const scoresBelow = scoreValues.filter(score => score < currentScore).length;
-  
-  // Calculate percentile (handling edge cases)
+
   if (scoresBelow === 0) return 0;
   if (scoresBelow === scoreValues.length) return 100;
-  
-  // Calculate percentile rank - ensure floating point division
+ 
   const percentile = (scoresBelow / scoreValues.length) * 100;
   
   return percentile;
 }
 
-// Create the percentile message element
 function createPercentileMessage(percentile, currentScore) {
   const messageDiv = document.createElement('div');
   messageDiv.className = 'percentile-message';
@@ -678,10 +636,8 @@ function createPercentileMessage(percentile, currentScore) {
 function displayHighScores(topScores) {
   if (!topScores) return;
   
-  // Calculate percentile for current score
   const percentile = calculatePercentileRank(gameState.stats.score, allScores);
   
-  // Create high scores HTML
   const highScoresHTML = `
       <div class="high-scores">
           <h3>Top 10 High Scores</h3>
@@ -698,7 +654,6 @@ function displayHighScores(topScores) {
       </div>
   `;
   
-  // Find or create high scores container
   let highScoresContainer = document.querySelector('.high-scores');
   const modalContent = document.querySelector('#gameOverModal .modal-content');
   
@@ -713,13 +668,11 @@ function displayHighScores(topScores) {
       highScoresContainer = document.querySelector('.high-scores');
   }
   
-  // Remove existing percentile message if it exists
   const existingMessage = modalContent.querySelector('.percentile-message');
   if (existingMessage) {
       existingMessage.remove();
   }
   
-  // Add percentile message
   const percentileMessage = createPercentileMessage(percentile, gameState.stats.score);
   if (highScoresContainer) {
       highScoresContainer.appendChild(percentileMessage);
@@ -766,7 +719,6 @@ window.restartGame = function(){
   gameState.gameStarted = true;
   gameState.modalDismissed = true;
 
-  // Give the ball an initial direction
   gameState.ball.dx = INITIAL_BALL_SPEED * (Math.random() > 0.5 ? 1 : -1);
   gameState.ball.dy = -INITIAL_BALL_SPEED;
 }
@@ -777,7 +729,6 @@ window.startGame = function() {
   video.style.opacity = 0.45;
 }
 
-//add smooth scroll behaviour to anchor tag link
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   anchor.addEventListener('click', function (e) {
       e.preventDefault();
@@ -788,7 +739,6 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   });
 });
 
-// Function to fetch high scores in the background
 async function fetchHighScoresInBackground() {
   if (highScoresFetched) return;
   
@@ -798,25 +748,20 @@ async function fetchHighScoresInBackground() {
           throw new Error('Network response was not ok');
       }
       const data = await response.json();
-      // Store all scores for percentile calculation
       allScores = data.scores;
-      // Store only top 10 for display
       cachedHighScores = data.scores.slice(0, 10);
       highScoresFetched = true;
       console.log("high scores fetched");
   } catch (error) {
       console.error('Error fetching high scores:', error);
-      // We'll try again later if this fails
       highScoresFetched = false;
   }
 }
 
-// Start fetching high scores as soon as the game loads
 document.addEventListener('DOMContentLoaded', () => {
   fetchHighScoresInBackground();
 });
 
-// Initialize game
 updateLivesDisplay();
 initBricks();
 setupHandTracking().catch(console.error);
