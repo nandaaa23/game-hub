@@ -1,12 +1,12 @@
 import Image from "next/image";
-import styles from "./page.module.css";
+import "./globals.css";
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
+    <div className="page">
+      <main className="main">
         <Image
-          className={styles.logo}
+          className="logo"
           src="/next.svg"
           alt="Next.js logo"
           width={180}
@@ -20,15 +20,15 @@ export default function Home() {
           <li>Save and see your changes instantly.</li>
         </ol>
 
-        <div className={styles.ctas}>
+        <div className="ctas">
           <a
-            className={styles.primary}
+            className="primary"
             href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
             target="_blank"
             rel="noopener noreferrer"
           >
             <Image
-              className={styles.logo}
+              className="logo"
               src="/vercel.svg"
               alt="Vercel logomark"
               width={20}
@@ -40,13 +40,13 @@ export default function Home() {
             href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
             target="_blank"
             rel="noopener noreferrer"
-            className={styles.secondary}
+            className="secondary"
           >
             Read our docs
           </a>
         </div>
       </main>
-      <footer className={styles.footer}>
+      <footer className="footer">
         <a
           href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
           target="_blank"
