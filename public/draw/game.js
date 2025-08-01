@@ -34,11 +34,6 @@ camera.start();
 
 // --- Main Drawing Loop (Called by MediaPipe) ---
 function onPoseResults(results) {
-    // Clear the canvas for the new frame
-
-    
-    // *** THE FIX IS HERE ***
-    // Draw the user's webcam feed in the corner
     ctx.save();
     ctx.globalAlpha = 0.7; // Make it slightly transparent
     ctx.scale(-1, 1); // Flip horizontally for a mirror effect
@@ -48,7 +43,6 @@ function onPoseResults(results) {
     // Draw the flipped image, adjusting the x-coordinate to keep it in the corner
     ctx.drawImage(results.image, -canvas.width + margin, margin, webcamWidth, webcamHeight);
     ctx.restore();
-    // *** END OF FIX ***
 
     if (!results.poseLandmarks) {
         isDrawing = false;

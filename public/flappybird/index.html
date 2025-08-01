@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Flappy Bird</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="ui-container">
+            <div id="score">0</div>
+            <div id="pitch-meter-container">
+                <div id="pitch-meter-bar"></div>
+            </div>
+        </div>
+        <div id="startModal" class="modal">
+            <div class="modal-content">
+                <h2>Voice Flappy Bird</h2>
+                <p>Make a high-pitched sound to fly!</p>
+                <p>(Allow microphone access when prompted)</p>
+                <button id="startButton">Start Game</button>
+            </div>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>

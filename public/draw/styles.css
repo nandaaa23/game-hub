@@ -62,10 +62,10 @@ body {
 
 #drawCanvas {
     background-color: #ffffff;
-    cursor: none; /* Hide cursor for a better tracking experience */
+    cursor: none; 
     flex-grow: 1;
 }
 
 #videoElement {
-    display: none; /* Video is for processing only */
+    display: none; 
 }
