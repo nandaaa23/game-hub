@@ -19,7 +19,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="title">GAME HUB</div>
+      <div className="title">Flail HUB</div>
       <div className="prompt">ARE YOU READY?</div>
 
       <div className="choices">

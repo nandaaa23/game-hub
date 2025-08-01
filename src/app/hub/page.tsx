@@ -12,7 +12,7 @@ const games = [
 export default function HubPage() {
   return (
     <div className="hub-container">
-      <h1 className="hub-title">🎮 Welcome to Game Hub 🎮</h1>
+      <h1 className="hub-title">🎮 Welcome to Flail Hub 🎮</h1>
       <div className="game-grid">
         {games.map((game) => (
           <GameCard
