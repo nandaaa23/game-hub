@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Body Tracking Ninja</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="game-container">
+        <video id="videoElement"></video>
+        <canvas id="gameCanvas"></canvas>
+        <div id="ui-container">
+            <div id="score">Score: 0</div>
+            <div id="lives">Lives: 3</div>
+        </div>
+        <div id="startModal" class="modal">
+            <div class="modal-content">
+                <h2>Body Ninja</h2>
+                <p>Use your hands to slice the fruit!</p>
+                <button id="startButton">Start Game</button>
+            </div>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
