@@ -1,0 +1,71 @@
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #e9e9e9;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+.toolbar {
+    background-color: #333;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: white;
+}
+
+.toolbar label {
+    font-weight: bold;
+}
+
+.toolbar input[type="color"] {
+    width: 40px;
+    height: 40px;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    background: none;
+}
+
+.toolbar input[type="range"] {
+    cursor: pointer;
+}
+
+.info {
+    font-style: italic;
+    color: #ccc;
+    margin-left: 15px;
+}
+
+#brushSizeValue {
+    background-color: #555;
+    padding: 5px 10px;
+    border-radius: 5px;
+    min-width: 20px;
+    text-align: center;
+}
+
+#clearButton {
+    margin-left: auto;
+    padding: 8px 15px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    background-color: #dc3545;
+    color: white;
+    cursor: pointer;
+}
+
+#drawCanvas {
+    background-color: #ffffff;
+    cursor: none; /* Hide cursor for a better tracking experience */
+    flex-grow: 1;
+}
+
+#videoElement {
+    display: none; /* Video is for processing only */
+}
