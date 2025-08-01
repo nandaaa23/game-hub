@@ -6,6 +6,10 @@ const scoreElement = document.getElementById('score');
 const livesElement = document.getElementById('lives');
 const startModal = document.getElementById('startModal');
 const startButton = document.getElementById('startButton');
+const gameOverModal = document.getElementById('gameOverModal');
+const finalScoreElement = document.getElementById('finalScore');
+const restartButton = document.getElementById('restartButton');
+
 
 // Make canvas fill the window
 canvas.width = window.innerWidth;
@@ -13,20 +17,33 @@ canvas.height = window.innerHeight;
 
 // --- Asset Loading ---
 const backgroundImage = new Image();
-backgroundImage.src = 'background.jpg'; // Add your background image
+backgroundImage.src = 'background.jpg'; 
 
 const fruitImages = {
     apple: { whole: new Image(), half1: new Image(), half2: new Image() },
+    strawberry: { whole: new Image(), half1: new Image(), half2: new Image() },
+    watermelon: { whole: new Image(), half1: new Image(), half2: new Image() },
     bomb: { whole: new Image() },
 };
+
 fruitImages.apple.whole.src = 'apple.png';
 fruitImages.apple.half1.src = 'apple-1.png';
 fruitImages.apple.half2.src = 'apple-2.png';
+
+fruitImages.strawberry.whole.src = 'strawberry.png';
+fruitImages.strawberry.half1.src = 'strawberry-1.png';
+fruitImages.strawberry.half2.src = 'strawberry-2.png';
+
+fruitImages.watermelon.whole.src = 'watermelon.png';
+fruitImages.watermelon.half1.src = 'watermelon-1.png';
+fruitImages.watermelon.half2.src = 'watermelon-2.png';
+
 fruitImages.bomb.whole.src = 'bomb.png';
+
 
 // --- Game State ---
 let score = 0;
-let lives = 3;
+let lives= 3;
 let fruits = [];
 let cutPieces = [];
 let sliceTrails = { left: [], right: [] };
@@ -47,10 +64,12 @@ const camera = new Camera(videoElement, {
 });
 camera.start();
 
-// --- Game Object Classes ---
 class Fruit {
     constructor() {
-        this.type = Math.random() < 0.2 ? 'bomb' : 'apple';
+        const fruitTypes = ['apple', 'strawberry', 'watermelon'];
+        const isBomb = Math.random() < 0.2;
+
+        this.type = isBomb ? 'bomb' : fruitTypes[Math.floor(Math.random() * fruitTypes.length)];
         this.imageSet = fruitImages[this.type];
         this.radius = this.type === 'bomb' ? 35 : 45;
         this.x = Math.random() * canvas.width;
@@ -58,17 +77,26 @@ class Fruit {
         this.velocity = { x: Math.random() * 4 - 2, y: -(Math.random() * 5 + 10) };
         this.gravity = 0.15;
     }
+
     update() {
         this.velocity.y += this.gravity;
         this.x += this.velocity.x;
         this.y += this.velocity.y;
     }
+
     draw() {
         if (this.imageSet.whole.complete) {
-            ctx.drawImage(this.imageSet.whole, this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
+            ctx.drawImage(
+                this.imageSet.whole,
+                this.x - this.radius,
+                this.y - this.radius,
+                this.radius * 2,
+                this.radius * 2
+            );
         }
     }
 }
+
 
 class CutPiece {
     constructor(x, y, image) {
@@ -105,7 +133,7 @@ function onPoseResults(results) {
 
     ctx.save();
     ctx.scale(-1, 1); // Flip horizontally for a mirror effect
-    ctx.globalAlpha = 0.7; // Make it slightly transparent
+    ctx.globalAlpha = 0.7; 
     ctx.drawImage(results.image, -canvas.width + 20, 20, 200, 150);
     ctx.restore();
 
@@ -152,7 +180,6 @@ function onPoseResults(results) {
         }
     }
     
-    // Request the next frame
     requestAnimationFrame(() => {});
 }
 
@@ -168,10 +195,13 @@ function checkSlice(trail) {
                 endGame();
                 return;
             }
+            let points = 10;
+                if (fruit.type === 'strawberry') points = 20;
+                if (fruit.type === 'watermelon') points = 30;
             cutPieces.push(new CutPiece(fruit.x, fruit.y, fruit.imageSet.half1));
             cutPieces.push(new CutPiece(fruit.x, fruit.y, fruit.imageSet.half2));
             fruits.splice(i, 1);
-            score += 10;
+            score += points;
             scoreElement.textContent = `Score: ${score}`;
         }
     }
@@ -198,6 +228,7 @@ function isWithinSegment(px, py, start, end) {
 // --- Game State Management ---
 function startGame() {
     startModal.style.display = 'none';
+    gameOverModal.style.display = 'none';
     score = 0;
     lives = 3;
     fruits = [];
@@ -208,11 +239,16 @@ function startGame() {
     fruitSpawnInterval = setInterval(() => fruits.push(new Fruit()), 1000);
 }
 
-function endGame() {
-    gameRunning = false;
-    clearInterval(fruitSpawnInterval);
-    alert(`Game Over! Your score: ${score}`);
-    startModal.style.display = 'flex';
-}
 
 startButton.addEventListener('click', startGame);
+
+function endGame() {
+  gameRunning = false;
+  clearInterval(fruitSpawnInterval);
+  finalScoreElement.textContent = score; 
+  gameOverModal.style.display = 'flex';  
+}
+
+restartButton.addEventListener('click', () => {
+  startGame();
+});
