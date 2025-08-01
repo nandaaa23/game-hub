@@ -1,47 +1,51 @@
 <img width="3188" height="1202" alt="frame (3)" src="https://github.com/user-attachments/assets/517ad8e9-ad22-457d-9538-a9e62d137cd7" />
 
 
-# [Project Name] 🎯
+# [Flail HUB] 🎯
 
 
 ## Basic Details
-### Team Name: [Name]
+### Team Name: [nunu nana]
 
 
 ### Team Members
-- Team Lead: [Name] - [College]
-- Member 2: [Name] - [College]
-- Member 3: [Name] - [College]
+- Member 1: [Nandana Sanil] - [LBSITW]
+
 
 ### Project Description
-[2-3 lines about what your project does]
+[A web-based hub of classic arcade games with a useless twist. We've thrown out perfectly good keyboard and mouse controls and replaced them with hand tracking, body movement, and voice commands. It's less of a "game hub" and more of a "flail hub."
+]
 
 ### The Problem (that doesn't exist)
-[What ridiculous problem are you solving?]
+[Gaming has become too efficient and comfortable. Players can sit for hours, silently achieving high scores with minimal physical effort. This level of ergonomic perfection is, frankly, boring. Where's the chaos? Where's the accidental exercise?
+]
 
 ### The Solution (that nobody asked for)
-[How are you solving it? Keep it fun!]
+[The Flail Hub! A collection of games that forces you to stand up, wave your arms, and yell at your computer. We've engineered a solution that transforms precise, skillful gameplay into an interpretive dance of impending failure.
+]
 
 ## Technical Details
 ### Technologies/Components Used
 For Software:
-- [Languages used]
-- [Frameworks used]
-- [Libraries used]
-- [Tools used]
+- [JavaScript, TypeScript, HTML5, CSS3]
+- [Next.js, React]
+- [MediaPipe (for Hand and Pose Tracking), Web Audio API (for Voice Frequency/Volume Control)]
+- [VS Code, Git, GitHub, Netlify (for deployment)]
 
-For Hardware:
-- [List main components]
-- [List specifications]
-- [List tools required]
 
 ### Implementation
 For Software:
 # Installation
-[commands]
+[```bash
+# Clone the repository
+git clone [https://github.com/nandaaa23/game-hub]
+cd game-hub
+
+# Install dependencies
+npm install]
 
 # Run
-[commands]
+[npm run dev]
 
 ### Project Documentation
 For Software:
@@ -60,37 +64,12 @@ For Software:
 ![Workflow](Add your workflow/architecture diagram here)
 *Add caption explaining your workflow*
 
-For Hardware:
-
-# Schematic & Circuit
-![Circuit](Add your circuit diagram here)
-*Add caption explaining connections*
-
-![Schematic](Add your schematic diagram here)
-*Add caption explaining the schematic*
-
-# Build Photos
-![Components](Add photo of your components here)
-*List out all components shown*
-
-![Build](Add photos of build process here)
-*Explain the build steps*
-
-![Final](Add photo of final product here)
-*Explain the final build*
-
 ### Project Demo
 # Video
 [Add your demo video link here]
 *Explain what the video demonstrates*
 
-# Additional Demos
-[Add any extra demo materials/links]
 
-## Team Contributions
-- [Name 1]: [Specific contributions]
-- [Name 2]: [Specific contributions]
-- [Name 3]: [Specific contributions]
 
 ---
 Made with ❤️ at TinkerHub Useless Projects 

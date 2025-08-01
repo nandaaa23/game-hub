@@ -9,15 +9,15 @@ const pitchMeterBar = document.getElementById('pitch-meter-bar');
 canvas.width = 400;
 canvas.height = 600;
 
-// --- Image Loading (for a more classic look) ---
+// --- Image Loading ---
 const birdImg = new Image();
-birdImg.src = 'bird.png'; // Add a 34x24px bird image for best results
+birdImg.src = 'bird.png';
 const pipeTopImg = new Image();
-pipeTopImg.src = 'pipe-top.png'; // A 52x320px image of the top pipe
+pipeTopImg.src = 'pipe-top.png';
 const pipeBottomImg = new Image();
-pipeBottomImg.src = 'pipe-bottom.png'; // A 52x320px image of the bottom pipe
+pipeBottomImg.src = 'pipe-bottom.png';
 const backgroundImg = new Image();
-backgroundImg.src = 'background.png'; // A seamless background image
+backgroundImg.src = 'background.png';
 
 // --- Game State & Constants ---
 let gameRunning = false;
@@ -28,7 +28,7 @@ const pipeSpeed = 2.5;
 const pipeGap = 150;
 const pipeWidth = 52;
 const pipeHeight = 320;
-const pipeInterval = 90; // Frames between pipes
+const pipeInterval = 90;
 
 // --- Bird ---
 const bird = {
@@ -44,19 +44,15 @@ const bird = {
 let pipes = [];
 let frameCount = 0;
 
-// --- Audio Processing (with Smoothing) ---
-let audioContext;
-let analyser;
-let microphone;
-const PITCH_THRESHOLD = 500; // Hz - A reasonable threshold for a high note
+// --- Audio Processing ---
+let audioContext, analyser, microphone;
+const PITCH_THRESHOLD = 350;
 let smoothedPitch = 0;
-const PITCH_SMOOTHING_FACTOR = 0.2; // Lower value = smoother, but less responsive
+const PITCH_SMOOTHING_FACTOR = 0.2;
+let lastFlapTime = 0;
+const FLAP_COOLDOWN = 400;
 
 async function setupAudio() {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert('Your browser does not support the audio API!');
-        return;
-    }
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -75,13 +71,12 @@ function getPitch() {
     const dataArray = new Float32Array(bufferLength);
     analyser.getFloatTimeDomainData(dataArray);
 
-    // Autocorrelation algorithm to find the fundamental frequency (pitch)
     let rms = 0;
     for (let i = 0; i < dataArray.length; i++) {
         rms += dataArray[i] * dataArray[i];
     }
     rms = Math.sqrt(rms / dataArray.length);
-    if (rms < 0.01) return 0; // Not enough signal
+    if (rms < 0.01) return 0;
 
     let bestCorrelation = 0;
     let bestOffset = -1;
@@ -99,18 +94,19 @@ function getPitch() {
     return audioContext.sampleRate / bestOffset;
 }
 
-
 // --- Game Loop ---
 function gameLoop() {
     if (!gameRunning) return;
 
-    // --- Update ---
-    // Bird physics
+    // Physics
     bird.velocity += gravity;
     bird.y += bird.velocity;
-    bird.angle = Math.min(90, bird.velocity * 5); // Angle of the bird
+    bird.angle = Math.min(90, bird.velocity * 5);
 
-    // Pipe management
+    // Clamp bird inside canvas
+    bird.y = Math.max(0, Math.min(canvas.height - bird.height, bird.y));
+
+    // Pipe logic
     frameCount++;
     if (frameCount % pipeInterval === 0) {
         const pipeY = Math.random() * (canvas.height - pipeGap - 200) + 100;
@@ -119,16 +115,13 @@ function gameLoop() {
     pipes.forEach(pipe => pipe.x -= pipeSpeed);
     pipes = pipes.filter(pipe => pipe.x + pipeWidth > 0);
 
-    // Collision detection
-    if (bird.y > canvas.height - bird.height || bird.y < 0) endGame();
-    pipes.forEach(pipe => {
-        if (bird.x + bird.width > pipe.x && bird.x < pipe.x + pipeWidth &&
-            (bird.y < pipe.y || bird.y + bird.height > pipe.y + pipeGap)) {
-            endGame();
-        }
-    });
-    
-    // Score
+    // --- Remove pipe collision detection ---
+    // Game ends ONLY if bird touches top/bottom
+    if (bird.y <= 0 || bird.y + bird.height >= canvas.height) {
+        endGame();
+    }
+
+    // Score update
     pipes.forEach(pipe => {
         if (pipe.x + pipeWidth < bird.x && !pipe.scored) {
             pipe.scored = true;
@@ -137,32 +130,30 @@ function gameLoop() {
         }
     });
 
-    // --- Voice Control with Smoothing ---
+    // Pitch logic
     const pitch = getPitch();
-    // Use an exponential moving average to smooth the pitch value
     smoothedPitch = PITCH_SMOOTHING_FACTOR * pitch + (1 - PITCH_SMOOTHING_FACTOR) * smoothedPitch;
-    
-    if (smoothedPitch > PITCH_THRESHOLD) {
+    const now = Date.now();
+    if (smoothedPitch > PITCH_THRESHOLD && now - lastFlapTime > FLAP_COOLDOWN) {
         bird.velocity = flapStrength;
+        lastFlapTime = now;
     }
-    pitchMeterBar.style.width = `${Math.min(100, (smoothedPitch / 800) * 100)}%`;
 
+    if (pitchMeterBar) {
+        pitchMeterBar.style.width = `${Math.min(100, (smoothedPitch / 800) * 100)}%`;
+    }
 
     // --- Draw ---
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw background
     if (backgroundImg.complete) {
         ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
     }
-    
-    // Draw pipes (obstacles)
+
     pipes.forEach(pipe => {
-        if(pipeTopImg.complete) ctx.drawImage(pipeTopImg, pipe.x, pipe.y - pipeHeight, pipeWidth, pipeHeight);
-        if(pipeBottomImg.complete) ctx.drawImage(pipeBottomImg, pipe.x, pipe.y + pipeGap, pipeWidth, pipeHeight);
+        if (pipeTopImg.complete) ctx.drawImage(pipeTopImg, pipe.x, pipe.y - pipeHeight, pipeWidth, pipeHeight);
+        if (pipeBottomImg.complete) ctx.drawImage(pipeBottomImg, pipe.x, pipe.y + pipeGap, pipeWidth, pipeHeight);
     });
-    
-    // Draw and rotate bird
+
     ctx.save();
     ctx.translate(bird.x + bird.width / 2, bird.y + bird.height / 2);
     ctx.rotate(bird.angle * Math.PI / 180);
@@ -174,14 +165,14 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-// --- Game State Management ---
+// --- Game State ---
 function startGame() {
     startModal.style.display = 'none';
     score = 0;
     bird.y = canvas.height / 2;
     bird.velocity = 0;
     pipes = [];
-    frameCount = pipeInterval; // Spawn the first pipe immediately
+    frameCount = pipeInterval;
     scoreElement.textContent = score;
     gameRunning = true;
     gameLoop();
