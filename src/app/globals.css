@@ -20,7 +20,6 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-   background-color: #141D22;
   background-image: 
     linear-gradient(to right, rgba(74, 74, 143, 0.1) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(74, 74, 143, 0.1) 1px, transparent 1px),
@@ -54,7 +53,7 @@ body {
   padding: 2rem;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   position: relative;
 }
@@ -83,6 +82,7 @@ body {
 .hi-score p {
   margin: 0;
   color: var(--highlight);
+  padding-bottom : 40px;
 }
 
 .hearts span {
@@ -91,24 +91,29 @@ body {
 }
 
 .title {
-  font-size: 2.5rem;
+  font-size: 4rem;
   color: var(--accent);
   text-align: center;
   z-index: 2;
+  
 }
 
 .prompt {
-  font-size: 0.8rem;
+  font-size: 3rem;
   margin: 0.5rem 0;
   z-index: 2;
+  font-family: 'Pixel2Font', sans-serif;
+  padding-top: 40px;
 }
 
 .choices {
   display: flex;
   justify-content: center;
-  gap: 3rem;
-  font-size: 0.9rem;
+  gap: 2rem;
+  font-size: 2.2rem;
   z-index: 2;
+  font-family: 'Pixel2Font', sans-serif;
+  padding-bottom: 40px;
 }
 
 .choice.selected {
@@ -138,6 +143,7 @@ body {
 .hub-title {
   font-size: 1rem;
   margin-bottom: 2rem;
+
 }
 
 .game-grid {
@@ -175,5 +181,25 @@ body {
 }
 
 .game-title {
-  font-size: 0.8rem;
+  font-size: 0.8rem;}
+
+@font-face {
+  font-family: 'PixelFont';
+  src: url('/fonts/3Dventure.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Pixel2Font';
+  src: url('/fonts/Blue.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Pixel3Font';
+  src: url('/fonts/Milkyway.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
 }
