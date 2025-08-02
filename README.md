@@ -1,7 +1,7 @@
 <img width="3188" height="1202" alt="frame (3)" src="https://github.com/user-attachments/assets/517ad8e9-ad22-457d-9538-a9e62d137cd7" />
 
 
-# 🎯 Flail HUB
+# 🎯 GAME HUB
 
 ---
 
@@ -14,7 +14,7 @@
 
 ## 🎮 Project Description
 
-**Flail HUB** is a web-based hub of classic arcade games with a useless twist.  
+**GAME HUB** is a web-based hub of classic arcade games with a useless twist.  
 We’ve thrown out perfectly good keyboard and mouse controls and replaced them with hand tracking, body movement, and voice commands.  
 
 It’s less of a "game hub" and more of a **"flail hub."**
@@ -55,7 +55,6 @@ We’ve engineered a solution that transforms precise, skillful gameplay into an
 
 ### ⚙️ Installation
 
-```bash
 # Clone the repository
 git clone https://github.com/nandaaa23/game-hub
 cd game-hub
@@ -63,31 +62,43 @@ cd game-hub
 # Install dependencies
 npm install
 
+---
 
 # Run
 npm run dev
+
+---
 
 ### Project Documentation
 For Software:
 
 # Screenshots (Add at least 3)
-![Screenshot1](Add screenshot 1 here with proper name)
-*Add caption explaining what this shows*
+<img width="1914" height="908" alt="Screenshot 2025-08-02 064004" src="https://github.com/user-attachments/assets/2531cbc1-4393-4934-ae76-83ec5bf835bf" />
 
-![Screenshot2](Add screenshot 2 here with proper name)
-*Add caption explaining what this shows*
+<img width="1911" height="903" alt="Screenshot 2025-08-02 064017" src="https://github.com/user-attachments/assets/91a576f2-5252-4989-aa7a-40f2ec759271" />
 
-![Screenshot3](Add screenshot 3 here with proper name)
-*Add caption explaining what this shows*
+<img width="1919" height="909" alt="Screenshot 2025-08-02 064144" src="https://github.com/user-attachments/assets/ee264195-35a5-4def-afb3-320251440f73" />
 
-# Diagrams
-![Workflow](Add your workflow/architecture diagram here)
-*Add caption explaining your workflow*
+<img width="1895" height="905" alt="Screenshot 2025-08-02 064229" src="https://github.com/user-attachments/assets/58721745-d549-418a-bc31-95d5afac0fc6" />
+
+<img width="1919" height="906" alt="Screenshot 2025-08-02 064310" src="https://github.com/user-attachments/assets/63a89914-64ba-4a53-adf6-67c63970da6a" />
+
+<img width="1911" height="890" alt="Screenshot 2025-08-02 064404" src="https://github.com/user-attachments/assets/ec78a416-81db-4f2b-bd64-ce337b3350ec" />
+
+---
 
 ### Project Demo
 # Video
-[Add your demo video link here]
-*Explain what the video demonstrates*
+https://github.com/user-attachments/assets/545ade51-66f8-4342-885e-391228107701
+
+
+https://github.com/user-attachments/assets/87304895-b4b5-476f-93c5-30758567be20
+
+
+https://github.com/user-attachments/assets/c1350afc-e373-43a8-9890-62f2eef210ad
+
+
+
 
 
 
